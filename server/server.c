@@ -69,10 +69,10 @@ int send_file(SOCKET sock, char* filename) {
 
     sprintf(data, "%d", getSize(filename));
     send(sock, data, sizeof(data), 0);
-    Sleep(2);
+    Sleep(1000);
     bytesSent = send(sock, filename, strlen(filename), 0);
     memset(data, 0, sizeof(data));
-    Sleep(2);
+    Sleep(2000);
 
     while ( (bytesSent = fread(data, 1, sizeof(data), fptr) ) > 0) {
         send(sock, data, bytesSent, 0);
