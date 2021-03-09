@@ -1,5 +1,5 @@
 # File-Transfer-over-tcp-socket   
-Send Files Over Tcp Socket in Windows   
+Send Files Over Tcp Socket in Windows Winsock   
 
 # Compile   
 gcc client.c -o client.exe -lws2_32   
