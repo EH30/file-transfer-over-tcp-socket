@@ -1,8 +1,11 @@
+/*
+* Created by: EH
+*
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <WS2tcpip.h>
-
-#pragma comment(lib, "ws2_32.lib")
 
 struct store {
     char buffer[1024];
@@ -50,6 +53,7 @@ int download_file(SOCKET sock){
         memset(pt.buffer, 0, sizeof(pt.buffer));
     }
 
+    send(sock, "\n\n\n", sizeof("\n\n\n"), 0);
     printf("[*]Finished\n");
     fclose(fptr);
 
@@ -65,23 +69,26 @@ int send_file(SOCKET sock, char* filename) {
     }
     
     int bytesSent = 0;
-    char data[1024];
+    char buffer[1024];
 
-    sprintf(data, "%d", getSize(filename));
-    send(sock, data, sizeof(data), 0);
-    Sleep(1000);
-    bytesSent = send(sock, filename, strlen(filename), 0);
-    memset(data, 0, sizeof(data));
+    sprintf(buffer, "%d", getSize(filename));
+    send(sock, buffer, sizeof(buffer), 0);
+    printf("[*]Size: %s\n", buffer);
+    Sleep(2000);
+    bytesSent = send(sock, filename, strlen(filename)+1, 0);
+    memset(buffer, 0, sizeof(buffer));
     Sleep(2000);
 
-    while ( (bytesSent = fread(data, 1, sizeof(data), fptr) ) > 0) {
-        send(sock, data, bytesSent, 0);
-        memset(data, 0, sizeof(data));
+    while ( (bytesSent = fread(buffer, 1, sizeof(buffer), fptr) ) > 0) {
+        send(sock, buffer, bytesSent, 0);
+        memset(buffer, 0, sizeof(buffer));
     }
 
+    printf("[*]Waiting for response...\n");
+    recv(sock, buffer, sizeof(buffer), 0);
+    
     printf("[*]Finished\n");
     fclose(fptr);
-
     return 0;
 }
 

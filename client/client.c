@@ -1,9 +1,12 @@
+/*
+* Created by: EH
+*
+*/
+
 #include <stdio.h>
 #include <ws2spi.h>
 #include <winsock2.h>
 #include <windows.h>
-
-#pragma comment(lib, "ws2_32.lib")
 
 struct store {
     char buffer[1024];
@@ -70,7 +73,8 @@ int download_file(SOCKET sock){
         fwrite(pt.buffer, pt.bytesRecvd, 1, fptr);
         memset(pt.buffer, 0, sizeof(pt.buffer));
     }
-
+    
+    send(sock, "\n\n\n", sizeof("\n\n\n"), 0);
     printf("[*]Finished\n");
     fclose(fptr);
 
@@ -91,7 +95,8 @@ int send_file(SOCKET sock, char* filename) {
 
     sprintf(buffer, "%d", getSize(filename));
     send(sock, buffer, sizeof(buffer), 0);
-    Sleep(1000);
+    printf("[*]Size: %s\n", buffer);
+    Sleep(2000);
     bytesSent = send(sock, filename, strlen(filename)+1, 0);
     memset(buffer, 0, sizeof(buffer));
     Sleep(2000);
@@ -100,6 +105,9 @@ int send_file(SOCKET sock, char* filename) {
         send(sock, buffer, bytesSent, 0);
         memset(buffer, 0, sizeof(buffer));
     }
+
+    printf("[*]Waiting for response...\n");
+    recv(sock, buffer, sizeof(buffer), 0);
 
     printf("[*]Finished\n");
     fclose(fptr);
