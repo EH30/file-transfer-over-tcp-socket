@@ -28,6 +28,24 @@ int getSize(char* filename) {
     return out;
 }
 
+int last_pos(char buff[]) {
+    for ( int i = strlen(buff); i >= 0 ; i-- ) {
+        if ( buff[i] == '\\' || buff[i] == '/' ) {
+            return i;
+        }
+    }
+    return 0;
+}
+
+char * Get_Name(char *filepath, char name[], int length) {
+    int count = 0;
+    for (int i = last_pos(filepath)+1; i < length; i++ ) {
+        name[count] = filepath[i];
+        count++;
+    }
+    return name;
+}
+
 int download_file(SOCKET sock){
     FILE* fptr;
     struct store pt;
@@ -36,7 +54,7 @@ int download_file(SOCKET sock){
     pt.size = atoi(pt.buffer);
     memset(pt.buffer, 0, sizeof(pt.buffer));
     pt.bytesRecvd = recv(sock, pt.name, sizeof(pt.name), 0);
-    fptr = fopen(pt.name, "ab");
+    fptr = fopen(pt.name, "wb");
 
     if (fptr == NULL) {
         return 1;
@@ -75,10 +93,15 @@ int send_file(SOCKET sock, char* filename) {
     send(sock, buffer, sizeof(buffer), 0);
     printf("[*]Size: %s\n", buffer);
     Sleep(2000);
-    bytesSent = send(sock, filename, strlen(filename)+1, 0);
+
+    memset(buffer, 0, 1024);
+    sprintf(buffer, "%s", Get_Name(filename, buffer, strlen(filename)));
+
+    bytesSent = send(sock, buffer, strlen(buffer)+1, 0);
     memset(buffer, 0, sizeof(buffer));
     Sleep(2000);
 
+    memset(buffer, 0, 1024);
     while ( (bytesSent = fread(buffer, 1, sizeof(buffer), fptr) ) > 0) {
         send(sock, buffer, bytesSent, 0);
         memset(buffer, 0, sizeof(buffer));
@@ -86,9 +109,10 @@ int send_file(SOCKET sock, char* filename) {
 
     printf("[*]Waiting for response...\n");
     recv(sock, buffer, sizeof(buffer), 0);
-    
+
     printf("[*]Finished\n");
     fclose(fptr);
+
     return 0;
 }
 
