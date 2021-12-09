@@ -34,12 +34,19 @@ int last_pos(char buff[]) {
             return i;
         }
     }
-    return 0;
+
+    return -1;
 }
 
 char * Get_Name(char *filepath, char name[], int length) {
     int count = 0;
-    for (int i = last_pos(filepath)+1; i < length; i++ ) {
+    int pos = last_pos(filepath);
+
+    if ( pos < 0 ) {
+        return filepath;
+    }
+
+    for (int i = pos+1; i < length; i++ ) {
         name[count] = filepath[i];
         count++;
     }
